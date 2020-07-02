@@ -1,0 +1,47 @@
+#!/usr/bin/env python3
+#
+#    pbcollectresults - collect results of a 'phishing' engagement
+#
+"""
+    Can be run 'manually' at any time to generate an interum status
+    report - but normally run a few hours after the final 'phish'.
+
+    It's often handy to 'queue up' via a Linux 'at' job.
+
+"""
+
+import sys
+
+from pbgophish import select_the_group, get_results
+from pbos import check_recip_addresses, send_the_report
+
+
+def main():
+    if len(sys.argv) < 3:
+        sys.exit(
+            "\n Usage: pbcollectresults <usergroup> <rcp1@dom.kr> [<rcip2@dim.kr]\n"
+            "\n e.g pbcollectresults ACME1432  jeff@acme.co.kr pam@wif.org \n"
+        )
+
+    base_group = sys.argv[1]
+
+    #   Grab the email recipient addresses...
+    recips = []
+    for param in range(2, len(sys.argv)):
+        recips.append(sys.argv[param])
+    #   ...and check that they look valid
+    check_recip_addresses(recips)
+
+    #   Now grab the results data 
+    select_the_group(base_group)
+    r = get_results()
+
+    #   .and send of the report.
+    send_the_report(r, base_group, recips)
+
+
+# -----------------end of main() --------------------------
+
+
+if __name__ == '__main__':
+    sys.exit(main())
